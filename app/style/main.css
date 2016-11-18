@@ -1,0 +1,117 @@
+html,body{
+    -webkit-app-region:drag;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+}
+
+.bgcontainer,.bgimage{
+    width: 100%;
+    height: 100%;
+}
+.bgimage{
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 500ms ease 0s;
+}
+
+.toolbar{
+    position: fixed;
+    z-index: 2;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+}
+
+
+.button-container{
+    display: flex;
+    align-self: center;
+    justify-content: flex-end;
+    padding-right: 20px;
+}
+
+.button{
+    -webkit-app-region:no-drag;
+    background: url('../assets/button.png');
+    height:42px;
+    width: 42px;
+    margin: 0 10px;
+    display: inline-block;
+    background-position: 0px 0px;
+    transition: opacity 500ms ease 0s;
+}
+
+.button-share{
+
+}
+.button:hover{    
+    animation: buttonhover 0.15s steps(7) 1;
+    animation-fill-mode: forwards;
+}
+.button-previous{
+    background-position-y: -84px;
+}
+
+.button-next{
+    background-position-y: -128px;
+}
+
+.button-play{
+    display: none;
+}
+
+.button-download{
+    background-position-y: -170px;
+
+}
+
+.button-info{
+    background-position-y: -42px;
+}
+
+
+@keyframes buttonhover{
+    0%{ background-position-x: 0 }
+    100%{ background-position-x: -294px}
+}
+
+.info{
+    -webkit-app-region:no-drag;
+    position: fixed;
+    width :440px;
+    height: calc(100% - 120px);
+    z-index: 1;
+    top: 0;
+    right: 0;
+    padding-bottom: 120px;
+    background: rgba(0,0,0,0.8);
+    /*right: -440px;*/
+    /*opacity: 0;*/
+    transition: all 0.6s ease 0s;
+}
+
+.info-hide{
+    right:-440px;
+    opacity: 0;
+}
+
+.info-content{
+    height: 100%;
+    width: 410px;
+    padding:20px 0 0 30px;
+    transition: opacity 0.5s ease 0s;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.copyright{
+    position: fixed;
+    bottom: 80px;
+    right: 0;
+    padding:5px 0px 5px 20px;
+    font-size: 18px;
+    font-family: '华文中宋','Helvetica Neue','Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif;
+
+}
