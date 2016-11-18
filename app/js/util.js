@@ -33,7 +33,7 @@ let getWallpaper = function (data) {
         res.on('end', function () {
             document.querySelector(".bgimage").style.opacity = 0
             document.querySelector(".info-content").style.opacity = 0
-            setBackground(JSON.parse(data).images[0])
+             setBackground(JSON.parse(data).images[0])
         });
     }).on('error', (e) => {
         console.log(`Got error: ${e.message}`);
@@ -45,6 +45,9 @@ let getWallpaper = function (data) {
 
 
 let setBackground = function (data) {
+    document.querySelector(".copyright").innerHTML = data.copyright
+    document.querySelector(".button-download").setAttribute("href",data.url)
+    document.querySelector(".button-download").setAttribute("download",data.url.match(/([A-z0-9-_]*?)\.jpg$/g))
     setTimeout(function () {
         var img = new Image();
         img.src = data.url;
@@ -92,7 +95,7 @@ let infoSwitch = function(){
     if(t.className != null && t.className.indexOf(' info-hide') > -1){
         t.className = t.className.replace(' info-hide', '');
     }else{
-        t.className = t.className + ' info-hide';
+        t.className = t.className + ' info-hide'; 
     }
 }
 
