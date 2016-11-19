@@ -1,6 +1,5 @@
 let http = require('http');
 let url = require('url');
-let util = require('util');
 
 let infourl = "http://cn.bing.com/cnhp/life?currentDate="
 let data = {
