@@ -10,3 +10,4 @@ o替换系统壁纸
 -键盘快捷键
 -点击链接调用浏览器
 -分享功能
+-读取的info将href替换为onclick = shell.openExternal（）
