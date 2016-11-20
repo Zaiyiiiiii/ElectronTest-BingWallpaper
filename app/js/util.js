@@ -33,6 +33,8 @@ Object.defineProperties(BingWallpaper, {
 
     getWallpaper: {
         value: function (data) {
+            document.querySelector(".bgcontainer").style.opacity = 0
+            document.querySelector(".info-content").style.opacity = 0
 
             let qs = require('querystring');
 
@@ -51,8 +53,6 @@ Object.defineProperties(BingWallpaper, {
                     json += chunk
                 });
                 res.on('end', function () {
-                    document.querySelector(".bgimage").style.opacity = 0
-                    document.querySelector(".info-content").style.opacity = 0
                     with (window) {
                         BingWallpaper.setBackground(JSON.parse(json).images[0])
                     }
@@ -66,31 +66,59 @@ Object.defineProperties(BingWallpaper, {
 
     setBackground: {
         value: function (data) {
-            document.querySelector(".copyright").innerHTML = data.copyright
-            document.querySelector(".button-download").setAttribute("href", data.url)
-            document.querySelector(".button-download").setAttribute("download", data.url.match(/([A-z0-9-_]*?)\.jpg$/g))
-            setTimeout(function () {
-                var img = new Image();
-                img.src = data.url;
-                img.onload = function () {
-                    let req = http.get(BingWallpaper.infourl + data.enddate, (res) => {
-                        var infohtml = ""
-                        res.on('data', function (chunk) {
-                            infohtml += chunk
-                        })
-                        res.on('end', function () {
-                            document.querySelector('.info-content').innerHTML = infohtml
-                            document.getElementById('hpla').removeChild(document.getElementById('hplaDL'));
-                            document.getElementById('hpla').removeChild(document.getElementById('hpBingAppQR'));
-                            document.querySelector(".info-content").style.opacity = 1
-                        });
-                    }).on('error', (e) => {
-                        console.log(`Got error: ${e.message}`);
+            if (data.hasOwnProperty('vid')) {
+                document.querySelector(".copyright").innerHTML = data.vid.caption
+                var videourl = "http:" + data.vid.sources.filter((arr) => arr[0] == "mp4hd")[0][2]
+                document.querySelector(".button-download").setAttribute("href", videourl)
+                document.querySelector(".button-download").setAttribute("download", videourl.match(/([A-z0-9-_]*?)\.mp4$/g))
+                setTimeout(function () {
+                    document.querySelector(".bgvideo").style.display = "block"
+                    document.querySelector(".bgimage").style.display = "none"
+                    document.querySelector(".bgvideo").setAttribute["src"] = videourl
+                    document.querySelector(".bgvideo").src = videourl
+                    document.querySelector(".bgvideo").setAttribute["autoplay"] = true
+                    document.querySelector(".bgvideo").addEventListener("canplaythrough", function () {
+                        document.querySelector(".bgvideo").play()
+                        document.querySelector(".bgcontainer").style.opacity = 1
+                        document.querySelector(".bgvideo").setAttribute["autoplay"] = false
                     });
-                    document.querySelector(".bgimage").style.backgroundImage = "url('" + data.url + "')"
-                    document.querySelector(".bgimage").style.opacity = 1
-                }
-            }, 500);
+                }, 500);
+                    BingWallpaper.setInfo(data)
+
+            } else {
+                document.querySelector(".copyright").innerHTML = data.copyright
+                document.querySelector(".button-download").setAttribute("href", data.url)
+                document.querySelector(".button-download").setAttribute("download", data.url.match(/([A-z0-9-_]*?)\.jpg$/g))
+                setTimeout(function () {
+                    document.querySelector(".bgvideo").style.display = "none"
+                    document.querySelector(".bgimage").style.display = "block"
+                    var img = new Image();
+                    img.src = data.url;
+                    img.onload = function () {
+                        document.querySelector(".bgimage").style.backgroundImage = "url('" + data.url + "')"
+                        document.querySelector(".bgcontainer").style.opacity = 1
+                    }
+                    BingWallpaper.setInfo(data);
+                }, 500);
+            }
+        }
+    },
+    setInfo: {
+        value: function (data) {
+            let req = http.get(BingWallpaper.infourl + data.enddate, (res) => {
+                var infohtml = ""
+                res.on('data', function (chunk) {
+                    infohtml += chunk
+                })
+                res.on('end', function () {
+                    document.querySelector('.info-content').innerHTML = infohtml
+                    document.getElementById('hpla').removeChild(document.getElementById('hplaDL'));
+                    document.getElementById('hpla').removeChild(document.getElementById('hpBingAppQR'));
+                    document.querySelector(".info-content").style.opacity = 1
+                });
+            }).on('error', (e) => {
+                console.log(`Got error: ${e.message}`);
+            });
         }
     },
     setNextButton: {
@@ -134,14 +162,19 @@ Object.defineProperties(BingWallpaper, {
             console.log(url)
             http.get(url, function (res) {
                 var imgData = "";
-                var path = process.env.USERPROFILE +"\\Pictures\\BingWallpaper\\" + url.match(/([A-z0-9-_]*?)\.jpg$/g)
+
+                var path = process.env.USERPROFILE + "\\Pictures\\BingWallpaper\\"
+                var filename = url.match(/([A-z0-9-_]*?)\.jpg$/g)
+                if (!fs.existsSync(path)) {
+                    fs.mkdir(path);
+                }
                 console.log(path)
                 res.setEncoding("binary");
                 res.on("data", function (chunk) {
                     imgData += chunk;
                 });
                 res.on("end", function () {
-                    fs.writeFile( path, imgData, "binary", function (err) {
+                    fs.writeFile(path + filename, imgData, "binary", function (err) {
                         if (err) {
                             console.log(err);
                         }
@@ -151,7 +184,7 @@ Object.defineProperties(BingWallpaper, {
                                 'int32', ['int32', 'int32', 'string', 'int32']
                             ]
                         });
-                        var loc = new Buffer(path, 'ucs-2');
+                        var loc = new Buffer(path + filename, 'ucs-2');
                         var a = user32.SystemParametersInfoW(20, true, loc, 0)
                     });
                 });

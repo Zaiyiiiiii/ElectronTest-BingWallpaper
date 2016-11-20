@@ -5,15 +5,21 @@ html,body{
     height: 100%;
     background-color: #333;
 }
+video::-webkit-media-controls-enclosure {
+    display: none;
+}
 
-.bgcontainer,.bgimage{
+.bgcontainer{
+    opacity: 0;
+    transition: opacity 500ms ease 0s;
+}
+
+.bgcontainer,.bgimage,.bgvideo{
     width: 100%;
     height: 100%;
 }
 .bgimage{
     background-size: cover;
-    opacity: 0;
-    transition: opacity 500ms ease 0s;
 }
 
 .toolbar{
@@ -70,7 +76,7 @@ html,body{
 
 .button-download{
     background-position-y: -170px;
-
+    cursor: default
 }
 
 .button-info{
