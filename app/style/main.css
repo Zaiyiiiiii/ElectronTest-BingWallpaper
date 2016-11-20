@@ -113,6 +113,8 @@ html,body{
 }
 
 .copyright{
+    cursor: pointer;
+    user-select: none;
     position: fixed;
     bottom: 72px;
     right: 0;

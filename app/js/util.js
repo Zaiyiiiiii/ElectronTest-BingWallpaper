@@ -1,107 +1,163 @@
 let http = require('http');
 let url = require('url');
+let util = require('util');
+var FFI = require('ffi');
+var fs = require("fs");
 
-let infourl = "http://cn.bing.com/cnhp/life?currentDate="
-let data = {
-    format: 'js',
-    idx: 0,
-    n: 1,
-    pid: 'hp',
-    mkt: 'zh_CN',
-    video: 1
-};
+var BingWallpaper = {}
+Object.defineProperties(BingWallpaper, {
+    infourl: {
+        value: "http://cn.bing.com/cnhp/life?currentDate="
+    },
 
-let getWallpaper = function (data) {
+    data: {
+        value: {
+            format: 'js',
+            idx: 0,
+            n: 1,
+            pid: 'hp',
+            mkt: 'zh_CN',
+            video: 1
+        }
+    },
+    idx: {
+        get: function () {
+            return this.data.idx
+        },
+        set: function (value) {
+            this.data.idx = value
+            this.getWallpaper(this.data)
+            this.setNextButton()
+        }
+    },
 
-    let qs = require('querystring');
+    getWallpaper: {
+        value: function (data) {
 
-    let content = qs.stringify(data);
+            let qs = require('querystring');
 
-    let options = {
-        hostname: 'cn.bing.com',
-        port: 80,
-        path: '/HPImageArchive.aspx?' + content,
-        method: 'GET'
-    };
+            let content = qs.stringify(data);
 
-    let req = http.get(options, (res) => {
-        var data = ""
-        res.on('data', function (chunk) {
-            data += chunk
-        });
-        res.on('end', function () {
-            document.querySelector(".bgimage").style.opacity = 0
-            document.querySelector(".info-content").style.opacity = 0
-             setBackground(JSON.parse(data).images[0])
-        });
-    }).on('error', (e) => {
-        console.log(`Got error: ${e.message}`);
-    });
-}
+            let options = {
+                hostname: 'cn.bing.com',
+                port: 80,
+                path: '/HPImageArchive.aspx?' + content,
+                method: 'GET'
+            };
 
-
-
-
-
-let setBackground = function (data) {
-    document.querySelector(".copyright").innerHTML = data.copyright
-    document.querySelector(".button-download").setAttribute("href",data.url)
-    document.querySelector(".button-download").setAttribute("download",data.url.match(/([A-z0-9-_]*?)\.jpg$/g))
-    setTimeout(function () {
-        var img = new Image();
-        img.src = data.url;
-        img.onload = function () {
-            let req = http.get(infourl + data.enddate, (res) => {
-                var infohtml = ""
+            let req = http.get(options, (res) => {
+                var json = ""
                 res.on('data', function (chunk) {
-                    infohtml += chunk
-                })
+                    json += chunk
+                });
                 res.on('end', function () {
-                    document.querySelector('.info-content').innerHTML = infohtml
-                    document.getElementById('hpla').removeChild(document.getElementById('hplaDL'));
-                    document.getElementById('hpla').removeChild(document.getElementById('hpBingAppQR'));
-                    document.querySelector(".info-content").style.opacity = 1
-                    });
+                    document.querySelector(".bgimage").style.opacity = 0
+                    document.querySelector(".info-content").style.opacity = 0
+                    with (window) {
+                        BingWallpaper.setBackground(JSON.parse(json).images[0])
+                    }
+                });
             }).on('error', (e) => {
                 console.log(`Got error: ${e.message}`);
             });
-            document.querySelector(".bgimage").style.backgroundImage = "url('" + data.url + "')"
-            document.querySelector(".bgimage").style.opacity = 1
         }
-    }, 500);
-}
+    },
 
-let switchWallpaper = function (count) {
-    data.idx += count
-    getWallpaper(data)
-    setNextButton()
-}
 
-let setNextButton = function () {
-    console.log(data.idx)
-    if (data.idx == 0) {
-        console.log(1)
-        document.querySelector('.button-next').style["-webkit-app-region"] = "drag"
-        document.querySelector('.button-next').style.opacity = 0.4;
-    } else {
-        document.querySelector('.button-next').style["-webkit-app-region"] = "no-drag"
-        document.querySelector('.button-next').style.opacity = 1;
+    setBackground: {
+        value: function (data) {
+            document.querySelector(".copyright").innerHTML = data.copyright
+            document.querySelector(".button-download").setAttribute("href", data.url)
+            document.querySelector(".button-download").setAttribute("download", data.url.match(/([A-z0-9-_]*?)\.jpg$/g))
+            setTimeout(function () {
+                var img = new Image();
+                img.src = data.url;
+                img.onload = function () {
+                    let req = http.get(BingWallpaper.infourl + data.enddate, (res) => {
+                        var infohtml = ""
+                        res.on('data', function (chunk) {
+                            infohtml += chunk
+                        })
+                        res.on('end', function () {
+                            document.querySelector('.info-content').innerHTML = infohtml
+                            document.getElementById('hpla').removeChild(document.getElementById('hplaDL'));
+                            document.getElementById('hpla').removeChild(document.getElementById('hpBingAppQR'));
+                            document.querySelector(".info-content").style.opacity = 1
+                        });
+                    }).on('error', (e) => {
+                        console.log(`Got error: ${e.message}`);
+                    });
+                    document.querySelector(".bgimage").style.backgroundImage = "url('" + data.url + "')"
+                    document.querySelector(".bgimage").style.opacity = 1
+                }
+            }, 500);
+        }
+    },
+    setNextButton: {
+        value: function () {
+            console.log(this.data.idx)
+            if (this.data.idx == 0) {
+                document.querySelector('.button-next').style["-webkit-app-region"] = "drag"
+                document.querySelector('.button-next').style.opacity = 0.4;
+            } else {
+                document.querySelector('.button-next').style["-webkit-app-region"] = "no-drag"
+                document.querySelector('.button-next').style.opacity = 1;
+            }
+        }
+    },
+
+    _infoSwitch: {
+        value: false,
+        writable: true
+
+    },
+
+    infoSwitch: {
+        get: function () {
+            return this._infoSwitch
+        },
+        set: function () {
+            var t = document.querySelector('.info')
+            console.log(this._infoSwitch)
+            this._infoSwitch = !this._infoSwitch
+            console.log(this._infoSwitch)
+            this._infoSwitch ? t.className = t.className.replace(/ info-hide/g, '') : t.className = t.className + ' info-hide';
+        }
+    },
+
+    downloadImage: {
+        value: null
+    },
+    setSystemBackground: {
+        value: function () {
+            var url = document.querySelector(".button-download").attributes['href'].value
+            console.log(url)
+            http.get(url, function (res) {
+                var imgData = "";
+                var path = process.env.USERPROFILE +"\\Pictures\\BingWallpaper\\" + url.match(/([A-z0-9-_]*?)\.jpg$/g)
+                console.log(path)
+                res.setEncoding("binary");
+                res.on("data", function (chunk) {
+                    imgData += chunk;
+                });
+                res.on("end", function () {
+                    fs.writeFile( path, imgData, "binary", function (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        var user32 = new FFI.Library('user32', {
+                            SystemParametersInfoW:
+                            [
+                                'int32', ['int32', 'int32', 'string', 'int32']
+                            ]
+                        });
+                        var loc = new Buffer(path, 'ucs-2');
+                        var a = user32.SystemParametersInfoW(20, true, loc, 0)
+                    });
+                });
+            });
+        }
     }
-}
+})
 
-let infoSwitch = function(){
-    var t = document.querySelector('.info')
-    if(t.className != null && t.className.indexOf(' info-hide') > -1){
-        t.className = t.className.replace(' info-hide', '');
-    }else{
-        t.className = t.className + ' info-hide'; 
-    }
-}
-
-let downloadImage = {
-    
-}
-
-
-setNextButton()
-getWallpaper(data)
+BingWallpaper.idx = BingWallpaper.idx
