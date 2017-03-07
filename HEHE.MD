@@ -11,3 +11,4 @@ o替换系统壁纸
 -点击链接调用浏览器
 -分享功能
 -读取的info将href替换为onclick = shell.openExternal（）
+-修改内容为视频时，设置的壁纸

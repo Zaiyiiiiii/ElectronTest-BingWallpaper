@@ -86,13 +86,16 @@ Object.defineProperties(BingWallpaper, {
                     BingWallpaper.setInfo(data)
 
             } else {
+                data.url="http://cn.bing.com"+data.url
                 document.querySelector(".copyright").innerHTML = data.copyright
                 document.querySelector(".button-download").setAttribute("href", data.url)
                 document.querySelector(".button-download").setAttribute("download", data.url.match(/([A-z0-9-_]*?)\.jpg$/g))
                 setTimeout(function () {
                     document.querySelector(".bgvideo").style.display = "none"
+                    document.querySelector(".bgvideo").pause()
                     document.querySelector(".bgimage").style.display = "block"
                     var img = new Image();
+                    console.log(data.url)
                     img.src = data.url;
                     img.onload = function () {
                         document.querySelector(".bgimage").style.backgroundImage = "url('" + data.url + "')"
@@ -126,9 +129,11 @@ Object.defineProperties(BingWallpaper, {
             console.log(this.data.idx)
             if (this.data.idx == 0) {
                 document.querySelector('.button-next').style["-webkit-app-region"] = "drag"
+                document.querySelector('.button-next').style.pointerEvents="none"
                 document.querySelector('.button-next').style.opacity = 0.4;
             } else {
                 document.querySelector('.button-next').style["-webkit-app-region"] = "no-drag"
+                document.querySelector('.button-next').style.pointerEvents="auto"
                 document.querySelector('.button-next').style.opacity = 1;
             }
         }

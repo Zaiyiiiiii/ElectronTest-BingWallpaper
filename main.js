@@ -15,7 +15,7 @@ function createWindow() {
     })
 
     mainWindow.loadURL('file://' + __dirname + '/app/main.html')
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
 
     mainWindow.webContents.session.on('will-download', (e, item) => {
         const totalBytes = item.getTotalBytes();

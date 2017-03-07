@@ -129,7 +129,7 @@ video::-webkit-media-controls-enclosure {
     padding:5px 25px 5px 0px;
     font-size: 16px;
     font-family: 'Source Han Sans Light','华文中宋','宋体','Helvetica Neue','Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif;
-    opacity: 0;
+    opacity: 0.4;
     transition: opacity 0.5s ease 0s;
     -webkit-app-region:no-drag;
 }

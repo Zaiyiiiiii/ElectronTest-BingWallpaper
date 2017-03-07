@@ -5,7 +5,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-packager ./ --platform=win32 --overwrite",
+    "pack": "build --dir",
+    "dist": "build"
   },
   "repository": {
     "type": "git",
@@ -13,7 +16,18 @@
   },
   "author": "wangzaiyi",
   "license": "ISC",
+  "build": {
+    "appId": "your.id",
+    "mac": {
+      "category": "your.app.category.type"
+    },
+    "win": {
+      "iconUrl": "(windows-only) https link to icon"
+    }
+  },
   "devDependencies": {
+    "electron-builder": "^8.6.0",
+    "electron-packager": "^8.3.0",
     "electron-prebuilt": "^1.4.6",
     "electron-rebuild": "^1.4.0"
   },
